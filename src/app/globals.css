@@ -1,26 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { font-family: 'Nunito', sans-serif; box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background-color: #F5F6FA;
+  color: #2D3550;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ── SOP markdown content ── */
+.sop-content > * + * { margin-top: 0.75rem; }
+.sop-content h1 { font-size: 1.5rem; font-weight: 800; color: #1A2340; margin-bottom: 0.75rem; margin-top: 1.5rem; }
+.sop-content h2 { font-size: 1.2rem; font-weight: 700; color: #1A2340; margin-bottom: 0.5rem; margin-top: 1.25rem; }
+.sop-content h3 { font-size: 1rem; font-weight: 700; color: #2D3550; margin-bottom: 0.4rem; margin-top: 1rem; }
+.sop-content p { font-size: 0.9375rem; color: #2D3550; line-height: 1.7; }
+.sop-content ul { list-style: disc; padding-left: 1.5rem; }
+.sop-content ol { list-style: decimal; padding-left: 1.5rem; }
+.sop-content li { font-size: 0.9375rem; color: #2D3550; line-height: 1.7; margin-bottom: 0.25rem; }
+.sop-content strong { font-weight: 700; color: #1A2340; }
+.sop-content code { background: #E8EAF0; color: #F07840; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; font-family: monospace; }
+.sop-content blockquote { border-left: 3px solid #3ECFB2; padding-left: 1rem; color: #6B7299; font-style: italic; }
+.sop-content hr { border: none; border-top: 1px solid #E8EAF0; margin: 1.5rem 0; }
+.sop-content table { width: 100%; border-collapse: collapse; display: table; }
+.sop-content > table, .sop-content p + table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sop-content th { background: #F5F6FA; color: #1A2340; font-weight: 700; text-align: left; padding: 9px 14px; border: 1px solid #E8EAF0; font-size: 0.875rem; white-space: nowrap; }
+.sop-content td { padding: 9px 14px; border: 1px solid #E8EAF0; font-size: 0.875rem; color: #2D3550; }
+.sop-content tr:nth-child(even) td { background: #FAFBFD; }
+.sop-content tr:hover td { background: #EBF9F6; transition: background 0.15s; }
+.sop-content img { max-width: 100%; border-radius: 12px; border: 1px solid #E8EAF0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: block; margin: 1rem 0; }
+.sop-content input[type="checkbox"] { margin-right: 0.5rem; accent-color: #3ECFB2; }
+.sop-content a { color: #3ECFB2; text-decoration: underline; }
+
+/* ── Callout boxes (AI formatted) ── */
+.sop-content .callout-tip { background: #EBF9F6; border-left: 3px solid #3ECFB2; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+.sop-content .callout-warning { background: #FEF3EC; border-left: 3px solid #F07840; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+.sop-content .callout-info { background: #EEF0FF; border-left: 3px solid #5B6ADD; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D0D4E8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #B0B6CC; }
+
+/* ── Animations ── */
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.badge-pop { animation: pop 0.2s ease-out; }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.slide-up { animation: slideUp 0.25s ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.2s ease-out; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
