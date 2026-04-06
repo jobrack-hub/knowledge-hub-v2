@@ -141,10 +141,21 @@ export default function DocView({
                       const id = String(children).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
                       return <h3 id={id} {...props}>{children}</h3>;
                     },
-                    img: ({ src, alt }) => (
+                    img: ({ src, alt }) => {
+                      // Only allow http/https to prevent javascript: or data: XSS
+                      let safeSrc = "";
+                      try {
+                        const url = new URL(src || "");
+                        if (url.protocol === "http:" || url.protocol === "https:") {
+                          safeSrc = url.href;
+                        }
+                      } catch {
+                        // invalid URL — render as broken image
+                      }
+                      return (
                       <span className="block my-4">
                         <img
-                          src={src || ""}
+                          src={safeSrc}
                           alt={alt || ""}
                           className="rounded-xl border border-[#E8EAF0] max-w-full shadow-sm"
                           style={{ maxHeight: "520px", objectFit: "contain" }}
@@ -155,7 +166,8 @@ export default function DocView({
                           </span>
                         )}
                       </span>
-                    ),
+                      );
+                    },
                   }}
                 >
                   {markdown}

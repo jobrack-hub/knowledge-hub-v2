@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import AIChat from "./AIChat";
 import { Bot } from "lucide-react";
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
   const [chatOpen, setChatOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Login page renders standalone — no sidebar or chrome
+  if (pathname === "/login") return <>{children}</>;
 
   return (
     <div className="flex h-screen bg-[#F5F6FA] overflow-hidden">
