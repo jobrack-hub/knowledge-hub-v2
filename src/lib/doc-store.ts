@@ -1,7 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-const CACHE_DIR = path.join(process.cwd(), ".doc-cache");
+// Vercel's filesystem is read-only except for /tmp
+const CACHE_DIR =
+  process.env.NODE_ENV === "production"
+    ? "/tmp/.doc-cache"
+    : path.join(process.cwd(), ".doc-cache");
 
 export interface StoredDoc {
   id: string;
