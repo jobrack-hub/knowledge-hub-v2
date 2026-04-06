@@ -1,31 +1,49 @@
-import { getAllDocs } from "./doc-store";
+import { getAllDocs, type StoredDoc } from "./doc-store";
 
-export async function buildAIContext(): Promise<string> {
+export async function buildAIContext(userQuery?: string): Promise<string> {
   const docs = await getAllDocs();
 
   if (docs.length === 0) {
     return "No SOPs have been synced yet. Please run a sync first.";
   }
 
-  const sections = docs.map(
+  let selectedDocs: StoredDoc[];
+
+  if (userQuery) {
+    // Score each doc by how many query terms it contains
+    const queryTerms = userQuery
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length > 2);
+
+    const scored = docs.map((doc) => {
+      const content = doc.markdown.toLowerCase();
+      const score = queryTerms.reduce((sum, term) => {
+        const count = content.split(term).length - 1;
+        return sum + count;
+      }, 0);
+      return { doc, score };
+    });
+
+    // Sort by relevance
+    scored.sort((a, b) => b.score - a.score);
+
+    // Take the most relevant docs, up to ~40k chars
+    selectedDocs = [];
+    let totalChars = 0;
+    for (const { doc, score } of scored) {
+      if (totalChars + doc.markdown.length > 50000 && selectedDocs.length > 0) break;
+      selectedDocs.push(doc);
+      totalChars += doc.markdown.length;
+    }
+  } else {
+    selectedDocs = docs;
+  }
+
+  const sections = selectedDocs.map(
     (doc) =>
-      `--- DOCUMENT: ${doc.title} (Category: ${doc.category}) ---\n${doc.formattedMarkdown || doc.markdown}\n--- END ---`
+      `--- DOCUMENT: ${doc.title} (Category: ${doc.category}) ---\n${doc.markdown}\n--- END ---`
   );
 
   return sections.join("\n\n");
-}
-
-export function buildSystemPrompt(context: string): string {
-  return `You are a JobRack SOP assistant. You help team members find and understand information from the company's Standard Operating Procedures.
-
-RULES:
-- Answer ONLY based on the documentation provided below
-- If the answer is not in the documentation, say "I couldn't find that in the SOPs"
-- When referencing information, mention which document and category it comes from
-- Be concise and practical
-- Use bullet points for lists
-- If asked about a process, walk through the steps clearly
-
-DOCUMENTATION:
-${context}`;
 }
