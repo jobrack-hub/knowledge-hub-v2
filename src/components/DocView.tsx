@@ -145,7 +145,7 @@ export default function DocView({
                       // Only allow http/https to prevent javascript: or data: XSS
                       let safeSrc = "";
                       try {
-                        const url = new URL(src || "");
+                        const url = new URL(typeof src === "string" ? src : "");
                         if (url.protocol === "http:" || url.protocol === "https:") {
                           safeSrc = url.href;
                         }
