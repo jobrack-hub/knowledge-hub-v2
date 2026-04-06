@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_COOKIE = "hub-auth";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // /api/sync has its own token-based auth — skip here
