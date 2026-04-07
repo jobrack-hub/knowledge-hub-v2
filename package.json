@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/blob": "^2.3.3",
     "fuse.js": "^7.3.0",
     "googleapis": "^171.4.0",
     "lucide-react": "^1.7.0",

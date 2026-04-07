@@ -1,11 +1,6 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { put, head, getDownloadUrl } from "@vercel/blob";
 
-// Vercel's filesystem is read-only except for /tmp
-const CACHE_DIR =
-  process.env.NODE_ENV === "production"
-    ? "/tmp/.doc-cache"
-    : path.join(process.cwd(), ".doc-cache");
+const BLOB_KEY = "docs.json";
 
 export interface StoredDoc {
   id: string;
@@ -27,37 +22,40 @@ export interface CategoryInfo {
   docCount: number;
 }
 
-async function ensureCacheDir() {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-}
-
-function slugify(name: string): string {
+export function slugify(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
 
-export { slugify };
-
-async function getCachePath() {
-  await ensureCacheDir();
-  return path.join(CACHE_DIR, "docs.json");
-}
-
 export async function getAllDocs(): Promise<StoredDoc[]> {
   try {
-    const cachePath = await getCachePath();
-    const data = await fs.readFile(cachePath, "utf-8");
-    return JSON.parse(data);
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!token) return [];
+
+    // Find the blob by prefix
+    const { blobs } = await (await import("@vercel/blob")).list({ prefix: BLOB_KEY, token });
+    if (!blobs.length) return [];
+
+    const res = await fetch(blobs[0].url, { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
   } catch {
     return [];
   }
 }
 
 export async function saveDocs(docs: StoredDoc[]): Promise<void> {
-  const cachePath = await getCachePath();
-  await fs.writeFile(cachePath, JSON.stringify(docs, null, 2));
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) throw new Error("BLOB_READ_WRITE_TOKEN not set");
+
+  await put(BLOB_KEY, JSON.stringify(docs, null, 2), {
+    access: "public",
+    token,
+    addRandomSuffix: false,
+    contentType: "application/json",
+  });
 }
 
 export async function getCategories(): Promise<CategoryInfo[]> {
