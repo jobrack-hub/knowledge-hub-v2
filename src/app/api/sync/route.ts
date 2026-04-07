@@ -6,10 +6,31 @@ import { saveDocs, getAllDocs, slugify, type StoredDoc } from "@/lib/doc-store";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
+async function hashPassword(password: string): Promise<string> {
+  const data = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  const hubPassword = process.env.HUB_PASSWORD;
+
+  // Accept either: Vercel cron Bearer token, or a logged-in user's cookie
+  const hasCronAuth = cronSecret && authHeader === `Bearer ${cronSecret}`;
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const cookieToken = cookieHeader
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith("hub-auth="))
+    ?.split("=")[1];
+  const expectedCookie = hubPassword ? await hashPassword(hubPassword) : null;
+  const hasCookieAuth = expectedCookie && cookieToken === expectedCookie;
+
+  if (!hasCronAuth && !hasCookieAuth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
