@@ -75,21 +75,16 @@ export async function GET(request: Request) {
     // Save with formatting status first so UI updates quickly
     await saveDocs(allDocs);
 
-    // Now run AI formatting on new/updated docs in the background
+    // Skip AI formatting during sync — use raw markdown immediately
+    // (AI formatting takes too long and causes timeout on Vercel)
     for (const doc of allDocs) {
-      if (doc.status === "formatting" && doc.markdown) {
-        try {
-          const formatted = await formatDocWithAI(doc.markdown, doc.title);
-          doc.formattedMarkdown = formatted;
-          doc.status = "ready";
-        } catch {
-          doc.formattedMarkdown = doc.markdown;
-          doc.status = "ready";
-        }
+      if (doc.status === "formatting") {
+        doc.formattedMarkdown = doc.markdown;
+        doc.status = "ready";
       }
     }
 
-    // Save again with formatted content
+    // Save with ready status
     await saveDocs(allDocs);
 
     return NextResponse.json({
