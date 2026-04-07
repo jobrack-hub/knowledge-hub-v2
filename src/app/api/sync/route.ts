@@ -40,6 +40,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing GOOGLE_DRIVE_FOLDER_ID" }, { status: 500 });
   }
 
+  const forceReformat = new URL(request.url).searchParams.get("force") === "true";
+
   try {
     const folders = await listSubfolders(folderId);
     const existingDocs = await getAllDocs();
@@ -55,8 +57,8 @@ export async function GET(request: Request) {
         try {
           const existing = existingMap.get(doc.id);
 
-          // Skip if doc hasn't changed since last sync
-          if (existing && existing.lastModified === doc.modifiedTime && existing.status !== "formatting") {
+          // Skip if doc hasn't changed since last sync (unless force=true)
+          if (!forceReformat && existing && existing.lastModified === doc.modifiedTime && existing.status !== "formatting") {
             allDocs.push(existing);
             continue;
           }
