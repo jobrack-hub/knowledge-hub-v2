@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_COOKIE = "hub-auth";
 
-export function proxy(request: NextRequest) {
+async function hashPassword(password: string): Promise<string> {
+  const data = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // /api/sync has its own token-based auth — skip here
@@ -16,9 +24,10 @@ export function proxy(request: NextRequest) {
     return new NextResponse("Server misconfiguration: HUB_PASSWORD not set", { status: 500 });
   }
 
-  // Check session cookie
+  // Check session cookie against hashed password (never store plaintext in cookie)
+  const expectedToken = await hashPassword(password);
   const cookie = request.cookies.get(AUTH_COOKIE)?.value;
-  if (cookie === password) return NextResponse.next();
+  if (cookie === expectedToken) return NextResponse.next();
 
   // Redirect to login, preserving the intended destination
   const loginUrl = new URL("/login", request.url);

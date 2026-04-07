@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     }));
 
     const completion = await getOpenAI().chat.completions.create({
-      model: "gpt-4o",
+      model: process.env.OPENAI_CHAT_MODEL ?? "gpt-4o",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: `Here are all JobRack SOPs for reference:\n\n${context}` },

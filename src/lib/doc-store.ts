@@ -32,7 +32,10 @@ export function slugify(name: string): string {
 export async function getAllDocs(): Promise<StoredDoc[]> {
   try {
     const token = process.env.BLOB_READ_WRITE_TOKEN;
-    if (!token) return [];
+    if (!token) {
+      console.warn("BLOB_READ_WRITE_TOKEN is not set — documents will not load");
+      return [];
+    }
 
     // Find the blob by prefix
     const { blobs } = await (await import("@vercel/blob")).list({ prefix: BLOB_KEY, token });

@@ -59,7 +59,7 @@ export default function Sidebar({ onToggleChat }: SidebarProps) {
   useEffect(() => {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length >= 1) {
-      setExpanded((prev) => ({ ...prev, [parts[0]]: true }));
+      setExpanded({ [parts[0]]: true });
     }
   }, [pathname]);
 

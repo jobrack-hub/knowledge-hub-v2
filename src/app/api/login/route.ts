@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
+async function hashPassword(password: string): Promise<string> {
+  const data = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function POST(request: NextRequest) {
   const { password, next } = await request.json();
   const expected = process.env.HUB_PASSWORD;
@@ -11,7 +19,10 @@ export async function POST(request: NextRequest) {
   const destination = typeof next === "string" && next.startsWith("/") ? next : "/";
   const response = NextResponse.json({ ok: true, redirect: destination });
 
-  response.cookies.set("hub-auth", expected, {
+  // Store a hash of the password, never the plaintext
+  const sessionToken = await hashPassword(expected);
+
+  response.cookies.set("hub-auth", sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { listSubfolders, listDocsInFolder, exportDocAsHtml } from "@/lib/google-drive";
 import { htmlToMarkdown } from "@/lib/markdown";
 import { saveDocs, getAllDocs, slugify, type StoredDoc } from "@/lib/doc-store";
-import { formatDocWithAI } from "@/lib/ai-format";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
