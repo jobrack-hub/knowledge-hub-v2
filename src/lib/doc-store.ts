@@ -41,7 +41,9 @@ export async function getAllDocs(): Promise<StoredDoc[]> {
     const { blobs } = await (await import("@vercel/blob")).list({ prefix: BLOB_KEY, token });
     if (!blobs.length) return [];
 
-    const res = await fetch(blobs[0].url, { cache: "no-store" });
+    // Use a signed download URL since the store is private
+    const downloadUrl = await getDownloadUrl(blobs[0].url, { token });
+    const res = await fetch(downloadUrl, { cache: "no-store" });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -54,9 +56,10 @@ export async function saveDocs(docs: StoredDoc[]): Promise<void> {
   if (!token) throw new Error("BLOB_READ_WRITE_TOKEN not set");
 
   await put(BLOB_KEY, JSON.stringify(docs, null, 2), {
-    access: "public",
+    access: "private",
     token,
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: "application/json",
   });
 }
