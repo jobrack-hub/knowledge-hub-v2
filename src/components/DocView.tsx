@@ -141,6 +141,21 @@ export default function DocView({
                       const id = String(children).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
                       return <h3 id={id} {...props}>{children}</h3>;
                     },
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto my-4">
+                        <table className="w-full border-collapse text-sm">{children}</table>
+                      </div>
+                    ),
+                    th: ({ children }) => (
+                      <th className="px-4 py-2 text-left text-xs font-bold text-[#1A2340] bg-[#F5F6FA] border border-[#E8EAF0] uppercase tracking-wide">
+                        {children}
+                      </th>
+                    ),
+                    td: ({ children }) => (
+                      <td className="px-4 py-2 text-sm text-[#2D3550] border border-[#E8EAF0] align-top">
+                        {children}
+                      </td>
+                    ),
                     img: ({ src, alt }) => {
                       // Only allow http/https to prevent javascript: or data: XSS
                       let safeSrc = "";

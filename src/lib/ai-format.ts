@@ -12,7 +12,6 @@ FORMATTING RULES:
 - Use numbered lists for step-by-step processes
 - Use bullet points for non-sequential lists
 - Use **bold** for key terms, names, and important words
-- Use tables where data is naturally tabular
 - Use > blockquotes for important tips, warnings, or notes (prefix with "💡 Tip:", "⚠️ Important:", or "📌 Note:")
 - Use --- horizontal rules to separate major sections
 - Keep the tone professional but easy to scan
@@ -22,6 +21,26 @@ FORMATTING RULES:
 - Preserve ALL original information — do not remove or change any facts
 - If there are links, preserve them
 - If content references tools (Monday.com, Slack, Google Drive, etc.), keep those references
+
+EMAIL TEMPLATES (very important):
+- Google Docs often stores email templates inside tables — these will appear as markdown tables in the input
+- NEVER render email templates as tables
+- Instead, render each email template as a clean block using this exact format:
+
+> **Subject:** [subject line if present]
+>
+> Hey [NAME],
+>
+> [body paragraph]
+>
+> [body paragraph]
+>
+> [sign-off]
+> [name]
+
+- Each distinct email template (e.g. PH1, PH2, follow-up sequences) should be its own labelled section with a ## heading
+- Placeholders like NAME, CANDIDATE NAME should be shown as **[NAME]**, **[CANDIDATE NAME]**
+- Only use actual markdown tables for genuinely tabular data (e.g. comparison grids, data with clear column headers)
 
 OUTPUT: Return ONLY the formatted markdown. No explanations or meta-commentary.`;
 
