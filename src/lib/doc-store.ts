@@ -42,7 +42,7 @@ export async function getAllDocs(): Promise<StoredDoc[]> {
     if (!blobs.length) return [];
 
     // Use a signed download URL since the store is private
-    const downloadUrl = await getDownloadUrl(blobs[0].url, { token });
+    const downloadUrl = getDownloadUrl(blobs[0].url);
     const res = await fetch(downloadUrl, { cache: "no-store" });
     if (!res.ok) return [];
     return await res.json();
