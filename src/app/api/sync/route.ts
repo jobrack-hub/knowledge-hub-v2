@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { listSubfolders, listDocsInFolder, exportDocAsHtml } from "@/lib/google-drive";
 import { htmlToMarkdown } from "@/lib/markdown";
 import { saveDocs, getAllDocs, slugify, type StoredDoc } from "@/lib/doc-store";
+import { formatDocWithAI } from "@/lib/ai-format";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -95,11 +96,10 @@ export async function GET(request: Request) {
     // Save with formatting status first so UI updates quickly
     await saveDocs(allDocs);
 
-    // Skip AI formatting during sync — use raw markdown immediately
-    // (AI formatting takes too long and causes timeout on Vercel)
+    // AI format only new/changed docs (unchanged docs keep their existing formattedMarkdown)
     for (const doc of allDocs) {
       if (doc.status === "formatting") {
-        doc.formattedMarkdown = doc.markdown;
+        doc.formattedMarkdown = await formatDocWithAI(doc.markdown, doc.title);
         doc.status = "ready";
       }
     }
