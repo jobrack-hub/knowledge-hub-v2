@@ -1,4 +1,4 @@
-import { put, head, getDownloadUrl } from "@vercel/blob";
+import { put } from "@vercel/blob";
 
 const BLOB_KEY = "docs.json";
 
@@ -41,9 +41,11 @@ export async function getAllDocs(): Promise<StoredDoc[]> {
     const { blobs } = await (await import("@vercel/blob")).list({ prefix: BLOB_KEY, token });
     if (!blobs.length) return [];
 
-    // Use a signed download URL since the store is private
-    const downloadUrl = getDownloadUrl(blobs[0].url);
-    const res = await fetch(downloadUrl, { cache: "no-store" });
+    // Pass token as Bearer header to read from private store
+    const res = await fetch(blobs[0].url, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch {
